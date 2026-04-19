@@ -12,23 +12,14 @@ export function confirmationMessage(
   date: string,
   time: string
 ): string {
-  const d = format(new Date(`${date}T12:00:00`), "EEEE, MMMM d, yyyy");
-  const t = format(new Date(`2000-01-01T${time}`), "h:mm a");
-
-  return [
-    `Dear ${patientName},`,
-    ``,
-    `Your appointment has been CONFIRMED! ✅`,
-    ``,
-    `🏥 Doctor : Dr. ${doctorName} (${specialty})`,
-    `📅 Date   : ${d}`,
-    `⏰ Time   : ${t}`,
-    ``,
-    `Please arrive 10 minutes early with your medical records.`,
-    `For queries call us: ${HOSPITAL_PHONE}`,
-    ``,
-    `Thank you for choosing ${HOSPITAL_NAME}.`,
-  ].join("\n");
+  void patientName;
+  void doctorName;
+  void specialty;
+  void date;
+  void time;
+  void HOSPITAL_PHONE;
+  void HOSPITAL_NAME;
+  return "Your appointment has been CONFIRMED";
 }
 
 export function reminderMessage(

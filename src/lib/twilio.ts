@@ -57,6 +57,8 @@ export function formatTwilioError(err: any): string {
     hint = " Invalid destination format. Use E.164 format, e.g. +14155552671.";
   } else if (numericCode === 63007) {
     hint = " WhatsApp sender not configured for this From number. Use a valid WhatsApp-enabled Twilio sender or SMS.";
+  } else if (numericCode === 63015) {
+    hint = " WhatsApp sandbox restriction: recipient must join sandbox first, or use SMS fallback.";
   } else if (numericCode === 30044) {
     hint = " Trial message too long. Shorten message content or upgrade Twilio account.";
   }
@@ -74,6 +76,7 @@ export async function sendMessageWithFallback(
     .replace(/\s+/g, " ")
     .trim();
   const trialSafeBody = (normalizedBody || "Appointment update from clinic.").slice(0, 60);
+  const emergencySmsBody = "Appointment reminder. Check booking details.";
 
   try {
     const msg = await twilioClient.messages.create({
@@ -86,17 +89,17 @@ export async function sendMessageWithFallback(
     // Trial accounts can reject longer bodies; retry once with compact short text.
     if (Number(err?.code) === 30044) {
       const msg = await twilioClient.messages.create({
-        body: trialSafeBody,
+        body: channel === "sms" ? emergencySmsBody : trialSafeBody,
         from: getFromAddress(channel),
         to: getToAddress(rawPhone, channel),
       });
       return { sid: msg.sid, usedChannel: channel, fallbackUsed: false };
     }
 
-    // Fallback to SMS when WhatsApp sender is not configured in Twilio.
-    if (channel === "whatsapp" && Number(err?.code) === 63007) {
+    // Fallback to SMS for common WhatsApp setup/sandbox limitations.
+    if (channel === "whatsapp" && [63007, 63015].includes(Number(err?.code))) {
       const msg = await twilioClient.messages.create({
-        body,
+        body: trialSafeBody,
         from: getFromAddress("sms"),
         to: getToAddress(rawPhone, "sms"),
       });
