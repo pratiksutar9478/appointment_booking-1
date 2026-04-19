@@ -1,6 +1,7 @@
 import { format } from "date-fns";
+import type { MessageChannel } from "@/types";
 
-const HOSPITAL_NAME  = process.env.HOSPITAL_NAME  ?? "City General Hospital";
+const HOSPITAL_NAME  = process.env.HOSPITAL_NAME  ?? "Gharda Hospital";
 const HOSPITAL_PHONE = process.env.HOSPITAL_PHONE ?? "+1-800-HOSPITAL";
 
 // ─── Message templates ────────────────────────────────────────────────────────
@@ -10,24 +11,41 @@ export function confirmationMessage(
   doctorName: string,
   specialty: string,
   date: string,
-  time: string
+  time: string,
+  channel: MessageChannel
 ): string {
-  void patientName;
-  void doctorName;
-  void specialty;
-  void date;
-  void time;
-  void HOSPITAL_PHONE;
-  void HOSPITAL_NAME;
-  return "Your appointment has been CONFIRMED";
+  if (channel === "sms") {
+    return "Your appointment has been CONFIRMED";
+  }
+
+  const d = format(new Date(`${date}T12:00:00`), "EEEE, MMMM d, yyyy");
+  const t = format(new Date(`2000-01-01T${time}`), "h:mm a");
+
+  return [
+    `Dear ${patientName},`,
+    ``,
+    `Your appointment has been CONFIRMED!`,
+    ``,
+    `Doctor: Dr. ${doctorName} (${specialty})`,
+    `Date: ${d}`,
+    `Time: ${t}`,
+    `Contact: ${HOSPITAL_PHONE}`,
+    ``,
+    `Thank you for choosing ${HOSPITAL_NAME}.`,
+  ].join("\n");
 }
 
 export function reminderMessage(
   patientName: string,
   doctorName: string,
   specialty: string,
-  time: string
+  time: string,
+  channel: MessageChannel
 ): string {
+  if (channel === "sms") {
+    return `Reminder: Appointment today at ${time}. Dr. ${doctorName}.`;
+  }
+
   const t = format(new Date(`2000-01-01T${time}`), "h:mm a");
 
   return [
@@ -47,8 +65,13 @@ export function reminderMessage(
 export function reschedulingMessage(
   patientName: string,
   doctorName: string,
-  date: string
+  date: string,
+  channel: MessageChannel
 ): string {
+  if (channel === "sms") {
+    return `Appointment update: Dr. ${doctorName} unavailable on ${date}. Call ${HOSPITAL_PHONE} to reschedule.`;
+  }
+
   const d = format(new Date(`${date}T12:00:00`), "EEEE, MMMM d, yyyy");
 
   return [

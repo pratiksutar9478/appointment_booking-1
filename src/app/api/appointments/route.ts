@@ -75,7 +75,14 @@ export async function POST(request: NextRequest) {
     let messageFallbackUsed = false;
     let messageChannelUsed = messageChannel;
     try {
-      const msgBody = confirmationMessage(patientName, doctorName, doctorSpecialty, date, time);
+      const msgBody = confirmationMessage(
+        patientName,
+        doctorName,
+        doctorSpecialty,
+        date,
+        time,
+        messageChannel
+      );
       const sendResult = await sendMessageWithFallback(msgBody, normalizedPhone, messageChannel);
       messageSent = true;
       messageFallbackUsed = sendResult.fallbackUsed;

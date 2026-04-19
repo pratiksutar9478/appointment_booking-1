@@ -49,7 +49,12 @@ export async function PUT(
       await Promise.allSettled(
         affected.map(async (appt) => {
           try {
-            const msgBody = reschedulingMessage(appt.patientName, doctor.name, appt.date);
+            const msgBody = reschedulingMessage(
+              appt.patientName,
+              doctor.name,
+              appt.date,
+              appt.messageChannel
+            );
             await sendMessageWithFallback(msgBody, appt.patientPhone, appt.messageChannel);
           } catch (twilioErr: any) {
             errors.push(`${appt.patientName}: ${formatTwilioError(twilioErr)}`);

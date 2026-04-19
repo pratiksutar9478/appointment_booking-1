@@ -70,7 +70,8 @@ export async function POST(request: NextRequest) {
             appt.patientName,
             appt.doctorName,
             appt.doctorSpecialty,
-            appt.time
+            appt.time,
+            appt.messageChannel
           );
           await sendMessageWithFallback(body, appt.patientPhone, appt.messageChannel);
           await db.update("appointments", appt.id, { reminderSent: true });
